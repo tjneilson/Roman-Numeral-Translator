@@ -9,138 +9,100 @@ it will ask the user:
     "Enter the numeral: "
 and then print
     "[user input] is: [the translation]"
-    
+
 if the user inputs something that is not a roman numeral and not a modern number
 it will print
     "[user input] is not a roman numeral"
 """
 
-class romanNumeralTranslator():
-    #this function will translate a roman numeral into a modern numeral
-    #if the roman numearl given is not a real roman numeral it will return -1
-    def translateToNow(roman = 'DEFAULT'):
-        #dictionary with the key for roman numeral letters
-        #tupal contains (modern numerical value, x from 10^x)
-        key = {'I':(1, 0), 'V':(5, 0), 'X':(10,1), 'L':(50, 1), 
-               'C':(100, 2), 'D':(500, 2), 'M':(1000, 3), '!':(0,0)}
-        
-        #checks the user input for invalid letters
-        for letter in roman:
-            if letter not in key:
+# this function will translate a roman numeral into a modern numeral
+# if the roman numearl given is not a real roman numeral it will return -1
+def translateToNow(roman = 'DEFAULT'):
+    # defines a dictionary for roman numeral letters and assositated modern value
+    key = {'I':1, 'V':5, 'X':10, 'L':50, 'C':100, 'D':500, 'M':1000}
+
+    # checks the user input for invalid letters
+    for letter in roman:
+        if letter not in key:
+            return -1
+
+    # the modern numercial value of the user's roman numeral
+    modern = 0
+    # flag is used to keep track of when subtractive notation is applied
+    flag = False
+    # adds '!' to end of roman string
+    roman = roman + '!'
+    # adds a key value of '!'
+    # done after the invalid letters test to avoid users adding '!' to input
+    key['!'] = 1
+
+    # for loop checks other roman numeral requirements and calculates
+    # the modern numerical equivilent
+    indexCount = 0
+    for letter in roman:
+        # checks for the last index to avoid out of range errors
+        if letter != '!':
+            # checks if the value of letter cannot proceed the next value
+            test = key[roman[indexCount + 1]] / key[letter]
+            if test > 10 or test == 2:
                 return -1
-        
-        #The modern numercial value of the user's roman numeral
-        modern = 0
-        #flag is used to keep track of when subtractive notation is applied
-        flag = False
-        #adds '!' to end of roman string
-        roman = roman + '!'
-        
-        #for loop checks other roman numeral requirements and calculates
-        #the modern numerical equivilent
-        indexCount = 0
-        for letter in roman:
-            #checks for the last index to avoid out of range errors
-            if letter != '!':    
-                #checks if the value of letter is too small to proceed the next value
-                if (key[roman[indexCount + 1]][1] - key[letter][1]) >= 2:
-                    return -1
-                #catches subtractive notation flag
-                elif flag:
-                    #applys subtractive notation to the current letter 
-                    #(current - previous)
-                    modern += (key[letter][0] - key[roman[indexCount - 1]][0])
-                    flag = False
-                #checks if current letter is the first in a 
-                #"subtractive notation" pair
-                elif key[roman[indexCount + 1]][0] > key[letter][0]:
-                    flag = True
-                else:
-                    modern += key[letter][0]
-            indexCount += 1
-        return modern;
-    
-    """
-    def translateToRome(num = 0):
-        num = int(num)
-        rome = ''
-        if num / 1000 > 0:
-            rome += 'M'
-            num = num % 1000
-            rome += self.translateToRome(num)
-        elif num / 900 > 0:
-            rome += 'CM'
-            num = num % 900
-            rome += self.translateToRome(num)
-        elif num / 500 > 0:
-            rome += 'D'
-            num = num % 500
-            rome += self.translateToRome(num)
-        elif num / 400 > 0:
-            rome += 'CD'
-            num = num % 400
-            rome += self.translateToRome(num)
-        elif num / 100 > 0:
-            rome += 'C'
-            num = num % 100
-            rome += self.translateToRome(num)
-        elif num / 90 > 0:
-            rome += 'XC'
-            num = num % 90
-            rome += self.translateToRome(num)
-        elif num / 50 > 0:
-            rome += 'L'
-            num = num % 50
-            rome += self.translateToRome(num)
-        elif num / 40 > 0:
-            rome += 'XL'
-            num = num % 40
-            rome += self.translateToRome(num)
-        elif num / 10 > 0:
-            rome += 'X'
-            num = num % 10
-            rome += self.translateToRome(num)
-        elif num / 9 > 0:
-            rome += 'IX'
-            num = num % 9
-            rome += self.translateToRome(num)
-        elif num / 5 > 0:
-            rome += 'V'
-            num = num % 5
-            rome += self.translateToRome(num)
-        elif num / 4 > 0:
-            rome += 'IV'
-            num = num % 4
-            rome += self.translateToRome(num)
-        elif num / 1 > 0:
-            rome += 'I'
-            num = num % 1
-            rome += self.translateToRome(num)
-        else:
-            rome = ''
-        return rome;
-    """
-    
-    #Gets the numeral from the user    
-    userInput = input("Enter the numeral: ")
-    
-    translation = None
-    
-    """
-    #calls the correct of the two translation functions
-    #if type(userInput) == str:
-        #translation = translateToNow(userInput)
-    if int(userInput) >= 0:
-        translation = translateToRome(userInput)
-    else:
-        translation = translateToNow(userInput)
-    """
-        
+            # catches subtractive notation flag
+            elif flag:
+                # applys subtractive notation to the current letter
+                # (current - previous)
+                modern += (key[letter] - key[roman[indexCount - 1]])
+                flag = False
+            # checks if current letter is the first in a
+            # "subtractive notation" pair
+            elif key[roman[indexCount + 1]] > key[letter]:
+                flag = True
+            else:
+                modern += key[letter]
+        indexCount += 1
+
+    return modern;
+
+# This function translates a modern numeral into a roman numeral
+def translateToRome(modern = 0):
+    # defines a dictionary for the corusponding letters associated with
+    # modern numberical values
+    key = {1000:'M', 900:'CM', 500:'D', 400:'CD', 100:'C', 90:'XC',
+           50:'L', 40:'XL', 10:'X', 9:'IX', 5:'V', 4:'IV', 1:'I'}
+
+    # makes sure the user input is an integer
+    modern = int(modern)
+    # a string which will hold the translation into roman numerals
+    rome = ''
+
+    # this loop translates the number into roman numerals by finding the largest
+    # roman numeral letter value in the modern number, recording that letter
+    # and removing that numerical value and repeating until a full translation
+    # is recorded
+    for digit in key:
+        while modern >= digit:
+            rome = rome + key[digit]
+            modern -= digit
+
+    return rome;
+
+# gets the numeral input from the user
+userInput = input("Enter the numeral: ")
+# defines a variable to hold the translation
+translation = None
+
+# program assumes the input is a modern numeral (an integer)
+inputIsModern = True
+# tests if the userInput can be translated to an integer. ]
+# If it can not, then the program knows the input is a string
+try:
+    int(userInput)
+    translation = translateToRome(userInput)
+except:
+    inputIsModern = False
     translation = translateToNow(userInput)
-    
-    #checks to see if translateToNow returned -1 (false user input)
-    if(translation == -1):
-        print(userInput + " is not a roman numeral.")
-    else:
-        print(userInput + " is: " + str(translation))
-                
+
+# checks to see if translateToNow returned -1 (invalid user input)
+if(translation == -1):
+    print(userInput + " is not valid input")
+else:
+    print(userInput + " is: " + str(translation))
